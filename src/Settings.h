@@ -6,6 +6,7 @@ class Settings {
 public:
 	using ISetting = AutoTOML::ISetting;
     using bSetting = AutoTOML::bSetting;
+    using sSetting = AutoTOML::sSetting;
 
     static void load() {
         try {
@@ -34,4 +35,5 @@ public:
     static inline bSetting animalparts{"General"s, "animalparts"s, true};
     static inline bSetting clutter{"General"s, "clutter"s, true};
     static inline bSetting misc{"General"s, "misc"s, true};
+    static inline sSetting blacklist{"General"s, "blacklist"s, ""};
 };

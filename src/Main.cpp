@@ -1,6 +1,7 @@
 #include <stddef.h>
 
 #include "Settings.h"
+#include "Util.h"
 
 using namespace RE::BSScript;
 using namespace SKSE;
@@ -36,24 +37,49 @@ namespace {
             case SKSE::MessagingInterface::kDataLoaded: {
                 RE::TESDataHandler* handler = RE::TESDataHandler::GetSingleton();
 
+                std::vector<RE::TESForm*> blacklist;
+                std::string blacklistStr = *Settings::blacklist;
+                if (!blacklistStr.empty()) {
+                    std::vector<std::string> items = Util::string_split(blacklistStr, ',');
+                    for (std::string& item : items) {
+                        std::vector<std::string> data = Util::string_split(item, '|');
+                        if (data.size() == 2) {
+                            RE::TESForm* form = handler->LookupForm(std::stoi(data[1], nullptr, 16), data[0]);
+                            if (form) {
+                                blacklist.push_back(form);
+                            } else {
+                                logger::info("unknown form: {}", item);
+                            }
+                        } else {
+                            logger::info("malformed blacklist entry: {}", item);
+                        }
+                    }
+                }
+
                 if (*Settings::books) {
                     auto& books = handler->GetFormArray<RE::TESObjectBOOK>();
                     for (RE::TESObjectBOOK*& book : books) {
-                        book->weight = 0;
+                        if (!Util::contains(blacklist, book)) {
+                            book->weight = 0;
+                        }
                     }
                 }
 
                 if (*Settings::soulgems) {
                     auto& soulgems = handler->GetFormArray<RE::TESSoulGem>();
                     for (RE::TESSoulGem*& soulgem : soulgems) {
-                        soulgem->weight = 0;
+                        if (!Util::contains(blacklist, soulgem)) {
+                            soulgem->weight = 0;
+                        }
                     }
                 }
 
                 if (*Settings::ingredients) {
                     auto& ingredients = handler->GetFormArray<RE::IngredientItem>();
                     for (RE::IngredientItem*& ingredient : ingredients) {
-                        ingredient->weight = 0;
+                        if (!Util::contains(blacklist, ingredient)) {
+                            ingredient->weight = 0;
+                        }
                     }
                 }
 
@@ -64,11 +90,11 @@ namespace {
                     auto& potions = handler->GetFormArray<RE::AlchemyItem>();
                     for (RE::AlchemyItem*& potion : potions) {
                         if (potion->HasKeyword(VendorItemFood) || potion->HasKeyword(VendorItemFoodRaw)) {
-                            if (*Settings::food) {
+                            if (*Settings::food && !Util::contains(blacklist, potion)) {
                                 potion->weight = 0;
                             }
                         } else {
-                            if (*Settings::potions) {
+                            if (*Settings::potions && !Util::contains(blacklist, potion)) {
                                 potion->weight = 0;
                             }
                         }
@@ -78,7 +104,9 @@ namespace {
                 if (*Settings::scrolls) {
                     auto& scrolls = handler->GetFormArray<RE::ScrollItem>();
                     for (RE::ScrollItem*& scroll : scrolls) {
-                        scroll->weight = 0;
+                        if (!Util::contains(blacklist, scroll)) {
+                            scroll->weight = 0;
+                        }
                     }
                 }
                 
@@ -92,23 +120,23 @@ namespace {
                     auto& misc = handler->GetFormArray<RE::TESObjectMISC>();
                     for (RE::TESObjectMISC*& item : misc) {
                         if (item->HasKeyword(VendorItemGem)) {
-                            if (*Settings::gems) {
+                            if (*Settings::gems && !Util::contains(blacklist, item)) {
                                 item->weight = 0;
                             }
                         } else if (item->HasKeyword(VendorItemOreIngot)) {
-                            if (*Settings::ingotsandores) {
+                            if (*Settings::ingotsandores && !Util::contains(blacklist, item)) {
                                 item->weight = 0;
                             }
                         } else if (item->HasKeyword(VendorItemAnimalHide) || item->HasKeyword(VendorItemAnimalPart)) {
-                            if (*Settings::animalparts) {
+                            if (*Settings::animalparts && !Util::contains(blacklist, item)) {
                                 item->weight = 0;
                             }
                         } else if (item->HasKeyword(VendorItemClutter)) {
-                            if (*Settings::clutter) {
+                            if (*Settings::clutter && !Util::contains(blacklist, item)) {
                                 item->weight = 0;
                             }
                         } else {
-                            if (*Settings::misc) {
+                            if (*Settings::misc && !Util::contains(blacklist, item)) {
                                 item->weight = 0;
                             }
                         }

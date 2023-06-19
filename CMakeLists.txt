@@ -25,6 +25,7 @@ set(headers
 
 set(sources
         src/Main.cpp
+        src/Util.cpp
 
         ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
 
