@@ -35,5 +35,8 @@ public:
     static inline bSetting animalparts{"General"s, "animalparts"s, true};
     static inline bSetting clutter{"General"s, "clutter"s, true};
     static inline bSetting misc{"General"s, "misc"s, true};
+    static inline bSetting jewelry{"General"s, "jewelry"s, true};
+    static inline bSetting weapons{"General"s, "weapons"s, true};
+    static inline bSetting armor{"General"s, "armor"s, true};
     static inline sSetting blacklist{"General"s, "blacklist"s, ""};
 };

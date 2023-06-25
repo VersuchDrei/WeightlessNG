@@ -142,6 +142,32 @@ namespace {
                         }
                     }
                 }
+
+                if (*Settings::weapons) {
+                    auto& weapons = handler->GetFormArray<RE::TESObjectWEAP>();
+                    for (RE::TESObjectWEAP*& weapon : weapons) {
+                        if (!Util::contains(blacklist, weapon)) {
+                            weapon->weight = 0;
+                        }
+                    }
+                }
+
+                if (*Settings::jewelry || *Settings::armor) {
+                    RE::BGSKeyword* VendorItemJewelry = handler->LookupForm<RE::BGSKeyword>(0x08F95A, "Skyrim.esm");
+
+                    auto& armors = handler->GetFormArray<RE::TESObjectARMO>();
+                    for (RE::TESObjectARMO*& armor : armors) {
+                        if (armor->HasKeyword(VendorItemJewelry)) {
+                            if (*Settings::jewelry && !Util::contains(blacklist, armor)) {
+                                armor->weight = 0;
+                            }
+                        } else {
+                            if (*Settings::armor && !Util::contains(blacklist, armor)) {
+                                armor->weight = 0;
+                            }
+                        }
+                    }
+                }
             } break;
         }
     }
